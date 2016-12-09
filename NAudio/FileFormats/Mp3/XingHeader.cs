@@ -22,7 +22,7 @@ namespace NAudio.Wave
         private int vbrScale = -1;
         private int startOffset;
         private int endOffset;
-        
+
         private int tocOffset = -1;
         private int framesOffset = -1;
         private int bytesOffset = -1;
@@ -32,13 +32,13 @@ namespace NAudio.Wave
         {
             int x;
             // big endian extract
-            x = buffer[offset+0];
+            x = buffer[offset + 0];
             x <<= 8;
-            x |= buffer[offset+1];
+            x |= buffer[offset + 1];
             x <<= 8;
-            x |= buffer[offset+2];
+            x |= buffer[offset + 2];
             x <<= 8;
-            x |= buffer[offset+3];
+            x |= buffer[offset + 3];
 
             return x;
         }
@@ -91,6 +91,16 @@ namespace NAudio.Wave
                 xingHeader.startOffset = offset;
                 offset += 4;
             }
+            // from http://gabriel.mp3-tech.org/mp3infotag.html
+            // ....In the Info Tag, the "Xing" identification string (mostly at 0x24) of the header is replaced by "Info" in case of a CBR file.
+            else if ((frame.RawData[offset + 0] == 'I') &&
+                     (frame.RawData[offset + 1] == 'n') &&
+                     (frame.RawData[offset + 2] == 'f') &&
+                     (frame.RawData[offset + 3] == 'o'))
+            {
+                xingHeader.startOffset = offset;
+                offset += 4;
+            }
             else
             {
                 return null;
@@ -135,11 +145,11 @@ namespace NAudio.Wave
         /// </summary>
         public int Frames
         {
-            get 
-            { 
-                if(framesOffset == -1) 
+            get
+            {
+                if (framesOffset == -1)
                     return -1;
-                return ReadBigEndian(frame.RawData, framesOffset); 
+                return ReadBigEndian(frame.RawData, framesOffset);
             }
             set
             {
@@ -154,11 +164,11 @@ namespace NAudio.Wave
         /// </summary>
         public int Bytes
         {
-            get 
-            { 
-                if(bytesOffset == -1) 
+            get
+            {
+                if (bytesOffset == -1)
                     return -1;
-                return ReadBigEndian(frame.RawData, bytesOffset); 
+                return ReadBigEndian(frame.RawData, bytesOffset);
             }
             set
             {
